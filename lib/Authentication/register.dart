@@ -1,18 +1,15 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo/home.dart';
-import 'package:todo/register.dart';
+import 'package:todo/Authentication/login.dart';
 
-class loginpage extends StatefulWidget {
-  const loginpage({super.key});
+class register extends StatefulWidget {
+  const register({super.key});
 
   @override
-  State<loginpage> createState() => _loginpageState();
+  State<register> createState() => _registerState();
 }
 
-class _loginpageState extends State<loginpage> {
+class _registerState extends State<register> {
   final _formkey = GlobalKey<FormState>();
   String email = '', password = '';
   var _emailController = TextEditingController();
@@ -21,7 +18,8 @@ class _loginpageState extends State<loginpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('login Screen'),
+        title: Text('Register'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Container(
@@ -37,8 +35,8 @@ class _loginpageState extends State<loginpage> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(hintText: 'Enter Email'),
                     validator: (value) {
-                      if (value!.isEmpty || value == null) {
-                        return 'Icorrect Email';
+                      if (value!.isEmpty) {
+                        return 'icorrect Email';
                       }
 
                       return null;
@@ -66,10 +64,10 @@ class _loginpageState extends State<loginpage> {
                             email = _emailController.text;
                             password = _passwordController.text;
                           });
-                          userLogin();
+                          register();
                         }
                       },
-                      child: Text('Login')),
+                      child: Text('Register')),
                   SizedBox(
                     height: 20,
                   ),
@@ -78,9 +76,9 @@ class _loginpageState extends State<loginpage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => register()));
+                                builder: (context) => loginpage()));
                       },
-                      child: Text('Register'))
+                      child: Text('Login'))
                 ],
               )),
         ),
@@ -88,21 +86,25 @@ class _loginpageState extends State<loginpage> {
     );
   }
 
-  userLogin() async {
-    Center(
-      child: CircularProgressIndicator(),
-    );
+  //function to register the user
+  register() async {
     try {
       await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-      Center(
-        child: CircularProgressIndicator(),
+          .createUserWithEmailAndPassword(email: email, password: password);
+      const snackBar = SnackBar(
+        content: Text('User Created'),
       );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => homepage()));
-    } on FirebaseAuthException catch (e) {
-      String? error = e.message;
-      log(error.toString());
+          context, MaterialPageRoute(builder: (context) => loginpage()));
+    } catch (e) {
+      const snackBar = SnackBar(
+        content: Text('User not Created'),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 }

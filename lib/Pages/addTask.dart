@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:todo/api.dart';
+import 'package:todo/helper/api.dart';
 
+// ignore: camel_case_types
 class addTask extends StatefulWidget {
   const addTask({super.key});
 
@@ -9,19 +10,19 @@ class addTask extends StatefulWidget {
   State<addTask> createState() => _addTaskState();
 }
 
+// ignore: camel_case_types
 class _addTaskState extends State<addTask> {
   TextEditingController task = TextEditingController();
-  var _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  String priority = 'must';
-  String formatedDate = '';
+  String _priority = 'must';
+  String _pickedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('TODO APP'),
-        centerTitle: true,
+        title: const Text('Add Task'),
       ),
       body: Center(
         child: GestureDetector(
@@ -44,13 +45,13 @@ class _addTaskState extends State<addTask> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Center(
+                    const Center(
                       child: Text(
                         'Add Your Task',
                         style: TextStyle(fontSize: 20),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     TextFormField(
@@ -67,41 +68,41 @@ class _addTaskState extends State<addTask> {
                     const SizedBox(
                       height: 20,
                     ),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () => _selectDate(context),
-                          child: const Text('Choose Date'),
-                        ),
-                        const SizedBox(
-                          width: 50,
-                        ),
-                        Text(formatedDate),
-                      ],
+                    MaterialButton(
+                      color: Colors.blue,
+                      onPressed: () => _selectDate(context),
+                      elevation: 5,
+                      child: Text(
+                        _pickedDate,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 50,
                     ),
                     const SizedBox(
                       height: 20,
                     ),
                     const Text('Select Priority'),
                     DropdownButton(
-                      value: priority,
+                      value: _priority,
                       items: const [
                         DropdownMenuItem(
-                          child: Text('must'),
                           value: 'must',
+                          child: Text('must'),
                         ),
                         DropdownMenuItem(
-                          child: Text('should'),
                           value: 'should',
+                          child: Text('should'),
                         ),
                         DropdownMenuItem(
-                          child: Text('want'),
                           value: 'want',
+                          child: Text('want'),
                         ),
                       ],
                       onChanged: (value) {
                         setState(() {
-                          priority = value!;
+                          _priority = value!;
                         });
                       },
                     ),
@@ -114,7 +115,7 @@ class _addTaskState extends State<addTask> {
                             if (_formKey.currentState!.validate()) {
                               try {
                                 api().sendTask(
-                                    task.text, priority, formatedDate);
+                                    task.text, _priority, _pickedDate);
                                 const snackBar =
                                     SnackBar(content: Text('Task Added'));
                                 ScaffoldMessenger.of(context)
@@ -147,9 +148,9 @@ class _addTaskState extends State<addTask> {
     if (picked != null && picked != DateTime.now()) {
       setState(() {
         DateTime selectedDate = picked;
-        formatedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+        _pickedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
       });
     }
-    return formatedDate;
+    return _pickedDate;
   }
 }

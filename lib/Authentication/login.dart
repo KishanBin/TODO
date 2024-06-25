@@ -1,24 +1,36 @@
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo/Pages/home.dart';
+import 'package:todo/Authentication/register.dart';
 
-class register extends StatefulWidget {
-  const register({super.key});
+class loginpage extends StatefulWidget {
+  const loginpage({super.key});
 
   @override
-  State<register> createState() => _registerState();
+  State<loginpage> createState() => _loginpageState();
 }
 
-class _registerState extends State<register> {
+class _loginpageState extends State<loginpage> {
   final _formkey = GlobalKey<FormState>();
   String email = '', password = '';
   var _emailController = TextEditingController();
   var _passwordController = TextEditingController();
+  String logged = 'unknown';
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
-        title: Text('Register'),
+        title: Text('login Screen'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Container(
@@ -35,7 +47,7 @@ class _registerState extends State<register> {
                     decoration: InputDecoration(hintText: 'Enter Email'),
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return 'icorrect Email';
+                        return 'Icorrect Email';
                       }
 
                       return null;
@@ -63,10 +75,10 @@ class _registerState extends State<register> {
                             email = _emailController.text;
                             password = _passwordController.text;
                           });
-                          register();
+                          userLogin();
                         }
                       },
-                      child: Text('Register')),
+                      child: Text('Login')),
                   SizedBox(
                     height: 20,
                   ),
@@ -75,9 +87,9 @@ class _registerState extends State<register> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => loginpage()));
+                                builder: (context) => register()));
                       },
-                      child: Text('Login'))
+                      child: Text('Register'))
                 ],
               )),
         ),
@@ -85,25 +97,36 @@ class _registerState extends State<register> {
     );
   }
 
-  //function to register the user
-  register() async {
+  userLogin() async {
+    Center(
+      child: CircularProgressIndicator(),
+    );
     try {
       await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-      const snackBar = SnackBar(
-        content: Text('User Created'),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((value) {
+        setState(() {
+          logged = 'known';
+        });
+      });
+      var pref = await SharedPreferences.getInstance();
+      pref.setString('LoggedUser', logged);
 
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => loginpage()));
-    } catch (e) {
-      const snackBar = SnackBar(
-        content: Text('User not Created'),
-      );
+          context, MaterialPageRoute(builder: (context) => homepage()));
+    } on FirebaseAuthException catch (e) {
+      String? error = e.message;
+      log(error.toString());
+    }
+  }
 
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  Future<void> checkUser() async {
+    var pref = await SharedPreferences.getInstance();
+    var check = pref.getString('LoggedUser');
+
+    if (check == "known") {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => homepage()));
     }
   }
 }

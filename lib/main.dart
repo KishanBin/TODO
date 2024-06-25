@@ -1,10 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo/addTask.dart';
-import 'package:todo/api.dart';
-
-import 'home.dart';
+import 'package:todo/Authentication/login.dart';
+import 'package:todo/helper/api.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +30,7 @@ class MyApp extends StatelessWidget {
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: homepage(),
+        home: loginpage(),
       ),
     );
   }

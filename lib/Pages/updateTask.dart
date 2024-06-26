@@ -79,7 +79,11 @@ class _updateTaskState extends State<updateTask> {
                 //datebutton
                 MaterialButton(
                   color: Colors.blue,
-                  onPressed: () => _selectDate(context),
+                  onPressed: () {
+                    const snackBar =
+                        SnackBar(content: Text("You can't change Date"));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
                   elevation: 5,
                   child: Text(
                     _pickedDate,
@@ -97,7 +101,7 @@ class _updateTaskState extends State<updateTask> {
                             Map<String, dynamic> data = {
                               "task": task.text,
                               "priority": _priority,
-                              "date": _pickedDate
+                              "date": _pickedDate,
                             };
                             api()
                                 .updateTask(widget.collection, widget.id, data);
@@ -122,20 +126,5 @@ class _updateTaskState extends State<updateTask> {
         ),
       ),
     );
-  }
-
-  //seleting the date to update the task
-  Future<String> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101));
-    if (picked != null && picked != DateTime.now()) {
-      setState(() {
-        _pickedDate = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-    return _pickedDate;
   }
 }
